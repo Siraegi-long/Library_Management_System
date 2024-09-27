@@ -18,7 +18,8 @@ public class Admin {
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                System.out.println("ID: " + rs.getString("ID"));
+            	System.out.println("ㅎㅇ");
+            	System.out.println("ID: " + rs.getString("ID"));
                 System.out.println("Name: " + rs.getString("name"));
                 System.out.println("Phone: " + rs.getString("phone"));
             }
