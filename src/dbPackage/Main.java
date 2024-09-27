@@ -2,7 +2,8 @@ package dbPackage;
 
 public class Main {
     public static void main(String[] args) {
-    	System.out.print("ㅎㅇㅎㅇ");
+    	System.out.print("ㅎㅇ ㅎㅎ");
+    	System.out.println("나도 연습");
         DBManager dbManager = new DBManager(); // DBManager 이름이 정확해야 함
         dbManager.initDBConnect();
 
