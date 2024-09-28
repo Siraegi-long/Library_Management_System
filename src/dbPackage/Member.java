@@ -1,53 +1,63 @@
 package dbPackage;
 
+import java.sql.*;
+import java.util.Scanner;
+
 public class Member {
-    private String memberID; // 회원 ID
-    private String name; // 이름
-    private String memberGrade; // 회원 등급
+    private String memberId;
+    private String name;
+    private String password;
+    private String memberGrade;
 
-    public Member() {
+    public Member(String memberId, String name, String password, String memberGrade) {
+        this.memberId = memberId;
+        this.name = name;
+        this.password = password;
+        this.memberGrade = memberGrade;
     }
 
-    public String getMemberID() {
-        return memberID;
+    public void registerMember() {
+        // 회원가입 로직 (DB에 회원 정보 추가)
     }
 
-    public void setMemberID(String memberID) {
-        this.memberID = memberID;
+    public void searchBook() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("검색할 도서 제목을 입력하세요: ");
+        String title = scanner.nextLine();
+
+        try {
+            Book.searchBook(title);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void viewMemberInfo() {
+        System.out.println("회원 ID: " + this.memberId);
+        System.out.println("회원 이름: " + this.name);
+        System.out.println("회원 등급: " + this.memberGrade);
+        // 추가 정보 표시
+    }
+
+    public void extendRentalPeriod() {
+        System.out.println("대여 연장 요청이 완료되었습니다."); // 실제 로직은 추가 필요
+    }
+
+    public static Member login(String inputId, String inputPw) {
+        // 로그인 로직 (DB에서 사용자 정보 확인)
+        return new Member("1234", "홍길동", "password", "일반"); // 임시 리턴
+    }
+
+    // Getter 메서드
+    public String getMemberId() {
+        return memberId;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getMemberGrade() {
         return memberGrade;
-    }
-
-    public void setMemberGrade(String memberGrade) {
-        this.memberGrade = memberGrade;
-    }
-
-    // 회원가입 메서드 (구현 필요)
-    public void registerMember() {
-        // 회원가입 로직 구현
-        // 입력을 받고 회원 정보를 설정
-    }
-
-    // 내 정보 조회 메서드
-    public void viewMemberInfo() {
-        System.out.println("회원 ID: " + memberID);
-        System.out.println("이름: " + name);
-        System.out.println("회원 등급: " + memberGrade);
-    }
-
-    // 대여 연장 요청 메서드 (구현 필요)
-    public void extendRentalPeriod() {
-        // 대여 연장 요청 로직 구현
-        System.out.println("대여 연장 요청 기능을 구현하세요.");
     }
 }

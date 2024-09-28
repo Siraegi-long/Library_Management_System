@@ -33,7 +33,7 @@ public class Main {
                     break;
 
                 case 2:
-                    Member newMember = new Member();
+                    Member newMember = new Member(null, null, null, null);
                     newMember.registerMember(); // 회원가입 기능 실행
                     System.out.println("회원가입이 완료되었습니다.");
                     break;
@@ -48,28 +48,17 @@ public class Main {
         }
     }
 
-    // 로그인 처리 메서드
     public static Member loginMenu() {
         Scanner scanner = new Scanner(System.in);
-
         System.out.print("ID를 입력하세요: ");
         String inputId = scanner.nextLine();
 
         System.out.print("비밀번호를 입력하세요: ");
         String inputPw = scanner.nextLine();
 
-        Member mockUser = new Member(); // 임시 사용자 생성
-        mockUser.setName("홍길동");
-        mockUser.setMemberID("1234");
-        mockUser.setMemberGrade("일반");
-
-        if (inputId.equals("admin") && inputPw.equals("admin")) {
-            mockUser.setMemberGrade("관리자");
-        }
-        return mockUser; // 예시로 리턴
+        return Member.login(inputId, inputPw); // 로그인 메서드 호출
     }
 
-    // 관리자 메뉴
     public static void adminMenu(Admin admin) {
         Scanner scanner = new Scanner(System.in);
 
@@ -101,7 +90,6 @@ public class Main {
         }
     }
 
-    // 사용자 메뉴 (일반 회원)
     public static void userMenu(Member member) {
         Scanner scanner = new Scanner(System.in);
 
@@ -118,19 +106,20 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    System.out.println("도서 검색 기능 실행...");
-                    member.searchBook(); // Book 클래스의 searchBook() 호출하여 도서 검색 처리
+                    member.searchBook(); // 도서 검색
                     break;
                 case 2:
                     member.viewMemberInfo(); // 내 정보 조회
                     break;
                 case 3:
-                    System.out.println("도서 대여 기능 실행...");
-                    // Book 클래스의 rentBook() 호출하여 도서 대여 처리
+                    System.out.print("대여할 도서 ID를 입력하세요: ");
+                    int bookId = scanner.nextInt();
+                    Book.rentBook(bookId, Integer.parseInt(member.getMemberId())); // 도서 대여
                     break;
                 case 4:
-                    System.out.println("도서 반납 기능 실행...");
-                    // Book 클래스의 returnBook() 호출하여 도서 반납 처리
+                    System.out.print("반납할 도서 ID를 입력하세요: ");
+                    int returnBookId = scanner.nextInt();
+                    Book.returnBook(returnBookId); // 도서 반납
                     break;
                 case 5:
                     member.extendRentalPeriod(); // 대여 연장 요청
