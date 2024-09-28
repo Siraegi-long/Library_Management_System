@@ -5,8 +5,8 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Admin admin = new Admin();  // 관리자 객체 생성
-        Member currentUser = null;  // 현재 로그인한 사용자
+        Admin admin = new Admin(); // 관리자 객체 생성
+        Member currentUser = null; // 현재 로그인한 사용자
 
         while (true) {
             System.out.println("=== 티니핑 대도서관 ===");
@@ -15,16 +15,17 @@ public class Main {
             System.out.println("3. 종료");
             System.out.print("선택: ");
             int choice = scanner.nextInt();
+            scanner.nextLine(); // 버퍼 비우기
 
             switch (choice) {
                 case 1:
-                    currentUser = loginMenu();  // 로그인 시도
+                    currentUser = loginMenu(); // 로그인 시도
                     if (currentUser != null) {
                         System.out.println("로그인 성공: " + currentUser.getName() + "님, 환영합니다.");
                         if (currentUser.getMemberGrade().equals("관리자")) {
-                            adminMenu(admin);  // 관리자 메뉴로 이동
+                            adminMenu(admin); // 관리자 메뉴로 이동
                         } else {
-                            userMenu(currentUser);  // 일반 사용자 메뉴로 이동
+                            userMenu(currentUser); // 일반 사용자 메뉴로 이동
                         }
                     } else {
                         System.out.println("로그인 실패: 잘못된 ID 또는 비밀번호입니다.");
@@ -33,7 +34,7 @@ public class Main {
 
                 case 2:
                     Member newMember = new Member();
-                    newMember.registerMember();  // 회원가입 기능 실행
+                    newMember.registerMember(); // 회원가입 기능 실행
                     System.out.println("회원가입이 완료되었습니다.");
                     break;
 
@@ -57,16 +58,15 @@ public class Main {
         System.out.print("비밀번호를 입력하세요: ");
         String inputPw = scanner.nextLine();
 
-        // 데이터베이스와 연동해 로그인 검증 필요 (여기서는 예시로 간단하게 처리)
-        // 실제로는 DB에서 사용자를 확인하고 객체를 반환해야 함
-        Member mockUser = new Member();
+        Member mockUser = new Member(); // 임시 사용자 생성
         mockUser.setName("홍길동");
         mockUser.setMemberID("1234");
         mockUser.setMemberGrade("일반");
+
         if (inputId.equals("admin") && inputPw.equals("admin")) {
             mockUser.setMemberGrade("관리자");
         }
-        return mockUser;  // 예시로 리턴, 실제로는 DB 조회 결과 리턴 필요
+        return mockUser; // 예시로 리턴
     }
 
     // 관리자 메뉴
@@ -84,13 +84,13 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    admin.manageUsers();  // 회원 관리
+                    admin.manageUsers(); // 회원 관리
                     break;
                 case 2:
-                    admin.manageBooks();  // 도서 목록 관리
+                    admin.manageBooks(); // 도서 목록 관리
                     break;
                 case 3:
-                    admin.approveExtension();  // 대여 연장 승인
+                    admin.approveExtension(); // 대여 연장 승인
                     break;
                 case 4:
                     System.out.println("관리자 로그아웃 완료.");
@@ -119,10 +119,10 @@ public class Main {
             switch (choice) {
                 case 1:
                     System.out.println("도서 검색 기능 실행...");
-                    // Book 클래스의 searchBook() 호출하여 도서 검색 처리
+                    member.searchBook(); // Book 클래스의 searchBook() 호출하여 도서 검색 처리
                     break;
                 case 2:
-                    member.viewMemberInfo();  // 내 정보 조회
+                    member.viewMemberInfo(); // 내 정보 조회
                     break;
                 case 3:
                     System.out.println("도서 대여 기능 실행...");
@@ -133,7 +133,7 @@ public class Main {
                     // Book 클래스의 returnBook() 호출하여 도서 반납 처리
                     break;
                 case 5:
-                    member.extendRentalPeriod();  // 대여 연장 요청
+                    member.extendRentalPeriod(); // 대여 연장 요청
                     break;
                 case 6:
                     System.out.println("로그아웃 완료.");
