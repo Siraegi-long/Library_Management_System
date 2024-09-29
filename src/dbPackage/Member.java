@@ -16,9 +16,46 @@ public class Member {
         this.memberGrade = memberGrade;
     }
 
-    public void registerMember() {
-        // 회원가입 로직 (DB에 회원 정보 추가)
+    public void registerMember(String name, String id, String pw, String phone) {
+        // 유효성 검사
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("이름을 입력하세요.");
+        }
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("ID를 입력하세요.");
+        }
+        if (pw == null || pw.length() < 8) {
+            throw new IllegalArgumentException("비밀번호는 최소 8자리 이상이어야 합니다.");
+        }
+        if (phone != null && phone.length() != 10) {
+            throw new IllegalArgumentException("전화번호는 10자리 숫자여야 합니다.");
+        }
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+            // 중복 ID 확인
+            String checkQuery = "SELECT ID FROM userTBL WHERE ID = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
+                checkStmt.setString(1, id);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    throw new IllegalArgumentException("이미 사용 중인 ID입니다.");
+                }
+            }
+
+            // 회원 등록
+            String insertQuery = "INSERT INTO userTBL (name, memberGrade, ID, PW, phone) VALUES (?, '일반', ?, ?, ?)";
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
+                insertStmt.setString(1, name);
+                insertStmt.setString(2, id);
+                insertStmt.setString(3, pw);
+                insertStmt.setString(4, phone);
+                insertStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
 
     public void searchBook() {
         Scanner scanner = new Scanner(System.in);
