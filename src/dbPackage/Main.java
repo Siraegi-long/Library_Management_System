@@ -122,7 +122,7 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    member.searchBook(conn); // 도서 검색
+                    Book.searchBook(); // 도서 검색
                     break;
                 case 2:
                     System.out.print("대여할 도서 ID를 입력하세요: ");

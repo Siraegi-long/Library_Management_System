@@ -78,9 +78,10 @@ public class Member {
         return member;
     }
 
-    public void searchBook(Connection conn) {
-        // 검색 도서 로직 (가정)
-    }
+// 	  Book Class 로 이용예정.
+//    public void searchBook(Connection conn) {
+//        // 검색 도서 로직 (가정)
+//    }
 
     public void viewMemberInfo() {
         System.out.println("회원 ID: " + this.memberId);
