@@ -39,18 +39,8 @@ public class Main {
                         }
                         break;
                     case 2:
-                        System.out.print("이름을 입력하세요: ");
-                        String name = scanner.nextLine();
-                        System.out.print("ID를 입력하세요: ");
-                        String id = scanner.nextLine();
-                        System.out.print("비밀번호를 입력하세요: ");
-                        String pw = scanner.nextLine();
-                        System.out.print("전화번호를 입력하세요: ");
-                        String phone = scanner.nextLine();
-
-                        Member newMember = new Member(null, null, null, null);
-                        newMember.registerMember(conn, name, id, pw, phone);
-                        System.out.println("회원가입이 완료되었습니다.");
+                        Member newMember = new Member(null,null,null,null);
+                        newMember.registerMember();
                         break;
                     case 3:
                         System.out.println("프로그램을 종료합니다.");
