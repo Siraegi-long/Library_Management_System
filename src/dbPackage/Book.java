@@ -127,24 +127,72 @@ public class Book {
 
 
     // 도서를 대여하는 메서드
-    public static void rentBook(Connection conn, int rentBookId, int memberId) throws SQLException {
+    public static void rentBook() throws SQLException {
+        Scanner scanner = new Scanner(System.in);
         Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
-        String query = "UPDATE books SET isRented = true WHERE bookId = ?"; // 도서를 대여하는 SQL 쿼리
-        PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
-        pstmt.setInt(1, bookId); // 대여할 도서 ID 설정
-        
-        // 쿼리 실행하여 도서 대여 상태 업데이트
-        pstmt.executeUpdate();
 
-        // Rental 객체 생성: 대여 기록을 위한 객체
-        Rental newRental = new Rental(0, bookId, memberId, new java.util.Date().toString(), null);
-        Rental.addRental(newRental); // 대여 기록 추가
-        
-        // 자원 정리: PreparedStatement, Connection 닫기
+        System.out.println("대여할 책 제목을 입력해주세요: ");
+        String bookTitle = scanner.nextLine(); // 책 제목을 문자열로 입력받기
+        System.out.println("입력된 책 제목: " + bookTitle); // 입력된 제목 확인
+
+        String query = "SELECT * FROM booktbl WHERE bookName LIKE ?";
+
+        PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
+        pstmt.setString(1, "%" + bookTitle + "%"); // 사용자 입력에 따른 LIKE 조건 설정
+
+        ResultSet rs = pstmt.executeQuery(); // 쿼리 실행하여 결과 집합 가져오기
+
+        // 결과 집합을 순회하며 도서 정보를 출력
+        while (rs.next()) {
+            int bookId = rs.getInt("bookId");
+            String bookName = rs.getString("bookName");
+            String authorName = rs.getString("author");
+            String publisher = rs.getString("publisher");
+            String categoryName = rs.getString("category");
+            int quantity = rs.getInt("quantity");
+
+            // 도서 정보를 출력
+            System.out.println("도서 ID: " + bookId + ", 제목: " + bookName + ", 저자: " + authorName + ", 출판사: " + publisher + ", 카테고리: " + categoryName + ", 수량: " + quantity);            
+
+            System.out.println("해당 도서를 대여 하시겠습니까?: Y / N");
+            String select = scanner.nextLine();
+
+            switch (select) {
+                case "Y":
+                    // 대여 처리: 도서 대여 정보 업데이트
+                    String updateBook = "UPDATE booktbl SET rentalDate = CURRENT_DATE(), rentalId = ? WHERE bookId = ?";
+                    PreparedStatement updatePstmt = conn.prepareStatement(updateBook);
+                    updatePstmt.setInt(1, /* 대여자의 ID */ 1);  // 실제 대여자의 ID로 변경 필요
+                    updatePstmt.setInt(2, bookId);  // 도서 ID를 이용하여 해당 책을 업데이트
+                    int rowsUpdated = updatePstmt.executeUpdate();
+
+                    if (rowsUpdated > 0) {
+                        System.out.println("도서 대여가 완료되었습니다.");
+                    } else {
+                        System.out.println("도서 대여에 실패하였습니다.");
+                    }
+
+                    updatePstmt.close(); // 업데이트 쿼리 자원 해제
+                    break;
+
+                case "N":
+                    System.out.println("도서 대여를 취소하셨습니다.");
+                    break;
+
+                default:
+                    System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
+                    break;
+            }
+        }
+
+        // 자원 해제: ResultSet과 PreparedStatement는 while 문이 끝난 후 해제
+        rs.close();
         pstmt.close();
         conn.close();
-        System.out.println("도서 대여가 완료되었습니다."); // 대여 완료 메시지 출력
     }
+
+     
+
 
     // 도서를 반납하는 메서드
     public static void returnBook(Connection conn, int returnBookId) throws SQLException {

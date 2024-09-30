@@ -22,19 +22,19 @@ public class Rental {
     // 대여 기록 추가 메서드
     public static void addRental(Rental rental) {
         String query = "INSERT INTO rentals (bookId, memberId, rentalDate, returnDate) VALUES (?, ?, ?, ?)"; // 대여 정보를 삽입하기 위한 SQL 쿼리
-        try (Connection conn = DBConnection.getConnection(); // try-with-resources로 연결 관리
-             PreparedStatement pstmt = conn.prepareStatement(query)) { // PreparedStatement 객체 생성
-             
-            pstmt.setInt(1, rental.bookId); // 도서 ID 설정
-            pstmt.setInt(2, rental.memberId); // 회원 ID 설정
-            pstmt.setString(3, rental.rentalDate); // 대여 날짜 설정
-            pstmt.setString(4, rental.returnDate); // 반납 날짜 설정
-            pstmt.executeUpdate(); // SQL 쿼리 실행하여 대여 정보 추가
-            System.out.println("대여 정보가 추가되었습니다."); // 추가 성공 메시지 출력
-        } catch (SQLException e) {
-            System.out.println("대여 정보 추가 중 오류 발생: " + e.getMessage()); // 오류 메시지 출력
-        }
-    }
+//        try (Connection conn = DBConnection.getConnection(); // try-with-resources로 연결 관리
+//             PreparedStatement pstmt = conn.prepareStatement(query)) { // PreparedStatement 객체 생성
+//             
+//            pstmt.setInt(1, rental.bookId); // 도서 ID 설정
+//            pstmt.setInt(2, rental.memberId); // 회원 ID 설정
+//            pstmt.setString(3, rental.rentalDate); // 대여 날짜 설정
+//            pstmt.setString(4, rental.returnDate); // 반납 날짜 설정
+//            pstmt.executeUpdate(); // SQL 쿼리 실행하여 대여 정보 추가
+//            System.out.println("대여 정보가 추가되었습니다."); // 추가 성공 메시지 출력
+//        } catch (SQLException e) {
+//            System.out.println("대여 정보 추가 중 오류 발생: " + e.getMessage()); // 오류 메시지 출력
+//        }
+//    }
 
     // 대여 기록 조회 메서드
     public static void viewRentals() {

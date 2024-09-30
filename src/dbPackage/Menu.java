@@ -1,12 +1,13 @@
 package dbPackage;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Menu {
     private Scanner scanner = new Scanner(System.in);
     private Admin admin = new Admin();
-    private Member member = new Member();
+    private Member member = null;
 
     // 초기 메뉴: 로그인 또는 회원가입
     public void initMenu() {
@@ -87,37 +88,45 @@ public class Menu {
             System.out.println("알 수 없는 오류 발생: " + e.getMessage());
         }
     }
-
-    // 일반 사용자 메뉴
-    public void userMenu() {
-        try {
+    
+    // 사용자 메뉴
+    public static void userMenu(Member member, Connection conn) throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("=== 사용자 메뉴 ===");
             System.out.println("1. 도서 검색");
-            System.out.println("2. 내 정보 조회");
-            System.out.println("3. 도서 대여 및 반납");
-            System.out.println("4. 대여 연장 요청");
+            System.out.println("2. 도서 대여");
+            System.out.println("3. 도서 반납");
+            System.out.println("4. 회원 정보 보기");
+            System.out.println("5. 로그아웃");
+            System.out.print("선택: ");
             int choice = scanner.nextInt();
 
             switch (choice) {
                 case 1:
-                    member.searchBook(); // 도서 검색
+                    Book.searchBook(); // 도서 검색
                     break;
                 case 2:
-                    member.viewMemberInfo(); // 내 정보 조회
+                	Book.rentBook();
+//                    System.out.print("대여할 도서 ID를 입력하세요: ");
+//                    int rentBookId = scanner.nextInt();
+//                    Book.rentBook(conn, rentBookId, Integer.parseInt(member.getMemberId())); // 대여
                     break;
                 case 3:
-                    member.rentOrReturnBook(); // 도서 대여 및 반납
+                    System.out.print("반납할 도서 ID를 입력하세요: ");
+                    int returnBookId = scanner.nextInt();
+                    Book.returnBook(conn, returnBookId); // 반납
                     break;
                 case 4:
-                    member.extendRentalPeriod(); // 대여 연장 요청
+                    member.viewMemberInfo(); // 회원 정보 보기
                     break;
+                case 5:
+                    System.out.println("로그아웃 완료.");
+                    return;
                 default:
-                    System.out.println("잘못된 선택입니다.");
-                    userMenu(); // 잘못된 선택 시 다시 호출
+                    System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
             }
-        } catch (SQLException e) {
-            System.out.println("데이터베이스 오류: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("알 수 없는 오류 발생: " + e.getMessage());
         }
     }
+    
 }
