@@ -113,11 +113,10 @@ public class Main {
         while (true) {
             System.out.println("=== 사용자 메뉴 ===");
             System.out.println("1. 도서 검색");
-            System.out.println("2. 내 정보 조회");
-            System.out.println("3. 도서 대여");
-            System.out.println("4. 도서 반납");
-            System.out.println("5. 대여 연장 요청");
-            System.out.println("6. 로그아웃");
+            System.out.println("2. 도서 대여");
+            System.out.println("3. 도서 반납");
+            System.out.println("4. 회원 정보 보기");
+            System.out.println("5. 로그아웃");
             System.out.print("선택: ");
             int choice = scanner.nextInt();
 
@@ -126,22 +125,19 @@ public class Main {
                     member.searchBook(conn); // 도서 검색
                     break;
                 case 2:
-                    member.viewMemberInfo(conn); // 회원 정보 조회
+                    System.out.print("대여할 도서 ID를 입력하세요: ");
+                    int rentBookId = scanner.nextInt();
+                    Book.rentBook(conn, rentBookId, Integer.parseInt(member.getMemberId())); // 대여
                     break;
                 case 3:
-                    System.out.print("대여할 도서 ID를 입력하세요: ");
-                    int bookId = scanner.nextInt();
-                    Book.rentBook(conn, bookId, Integer.parseInt(member.getMemberId())); // 도서 대여
-                    break;
-                case 4:
                     System.out.print("반납할 도서 ID를 입력하세요: ");
                     int returnBookId = scanner.nextInt();
-                    Book.returnBook(conn, returnBookId); // 도서 반납
+                    Book.returnBook(conn, returnBookId); // 반납
+                    break;
+                case 4:
+                    member.viewMemberInfo(); // 회원 정보 보기
                     break;
                 case 5:
-                    member.extendRentalPeriod(conn); // 대여 연장 요청
-                    break;
-                case 6:
                     System.out.println("로그아웃 완료.");
                     return;
                 default:

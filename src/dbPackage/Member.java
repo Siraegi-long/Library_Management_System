@@ -29,8 +29,8 @@ public class Member {
         if (pw == null || pw.length() < 8) {
             throw new IllegalArgumentException("비밀번호는 최소 8자리 이상이어야 합니다.");
         }
-        if (phone != null && phone.length() != 10) {
-            throw new IllegalArgumentException("전화번호는 10자리 숫자여야 합니다.");
+        if (phone != null && phone.length() != 11) {
+            throw new IllegalArgumentException("전화번호는 11자리 숫자여야 합니다.");
         }
 
         try {
@@ -58,11 +58,31 @@ public class Member {
         }
     }
 
+    public static Member login(Connection conn, String inputId, String inputPw) {
+        // 로그인 로직 (DB에서 사용자 정보 확인)
+        Member member = null;
+        String query = "SELECT memberId, name, memberGrade FROM usertbl WHERE ID = ? AND PW = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, inputId);
+            stmt.setString(2, inputPw);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String memberId = rs.getString("memberId");
+                String name = rs.getString("name");
+                String memberGrade = rs.getString("memberGrade");
+                member = new Member(memberId, name, inputPw, memberGrade); // 로그인 성공 시 Member 객체 생성
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return member;
+    }
+
     public void searchBook(Connection conn) {
         // 검색 도서 로직 (가정)
     }
 
-    public void viewMemberInfo(Connection conn) {
+    public void viewMemberInfo() {
         System.out.println("회원 ID: " + this.memberId);
         System.out.println("회원 이름: " + this.name);
         System.out.println("회원 등급: " + this.memberGrade);
@@ -70,11 +90,6 @@ public class Member {
 
     public void extendRentalPeriod(Connection conn) {
         System.out.println("대여 연장 요청이 완료되었습니다."); // 실제 로직은 추가 필요
-    }
-
-    public static Member login(Connection conn, String inputId, String inputPw) {
-        // 로그인 로직 (DB에서 사용자 정보 확인)
-        return new Member("1234", "홍길동", "password", "일반"); // 임시 리턴
     }
 
     // Getter 메서드
