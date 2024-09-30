@@ -1,6 +1,7 @@
 package dbPackage; // dbPackage라는 패키지에 속하는 클래스
 
 import java.sql.*; // JDBC API를 사용하기 위한 패키지
+import java.util.Scanner; // 입력 값 패키지
 
 // Book 클래스는 도서의 정보를 저장하고 관리하는 역할을 한다.
 public class Book {
@@ -60,33 +61,70 @@ public class Book {
     }
 
     // 도서 제목을 기반으로 도서를 검색하는 메서드
-    public static void searchBook(String title) throws SQLException {
+    public static void searchBook() throws SQLException {
+        Scanner scanner = new Scanner(System.in);
         Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
-        String query = "SELECT * FROM books WHERE title LIKE ?"; // 도서 제목을 기반으로 검색하는 SQL 쿼리
-        PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
-        pstmt.setString(1, "%" + title + "%"); // 제목에 대한 LIKE 조건 설정
+
+        System.out.println("검색할 기준을 선택하세요:");
+        System.out.println("1. 도서명");
+        System.out.println("2. 저자");
+        System.out.println("3. 카테고리");
+        System.out.print("선택 (1/2/3): ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // 줄바꿈 제거
+
+        String query = "SELECT * FROM booktbl WHERE ";
+        String filter = "";
+        String searchValue = ""; // 검색할 값을 저장할 변수
         
+        switch (choice) {
+            case 1:
+                System.out.print("검색할 도서명을 입력하세요: ");
+                searchValue = scanner.nextLine();
+                filter = "bookName LIKE ?";
+                break;
+            case 2:
+                System.out.print("검색할 저자를 입력하세요: ");
+                searchValue = scanner.nextLine();
+                filter = "author LIKE ?";
+                break;
+            case 3:
+                System.out.print("검색할 카테고리를 입력하세요: ");
+                searchValue = scanner.nextLine();
+                filter = "category LIKE ?";
+                break;
+            default:
+                System.out.println("잘못된 선택입니다.");
+                return; // 잘못된 선택 시 메서드 종료
+        }
+
+        query += filter; // 쿼리에 필터 추가
+        PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
+
+        // 사용자 입력에 따른 LIKE 조건 설정
+        pstmt.setString(1, "%" + searchValue + "%");
+
         ResultSet rs = pstmt.executeQuery(); // 쿼리 실행하여 결과 집합 가져오기
 
         // 결과 집합을 순회하며 도서 정보를 출력
         while (rs.next()) {
-            int bookId = rs.getInt("bookId"); // 도서 ID 가져오기
-            String author = rs.getString("author"); // 저자 가져오기
-            String publisher = rs.getString("publisher"); // 출판사 가져오기
-            String publicationDate = rs.getString("publicationDate"); // 출판일 가져오기
-            String category = rs.getString("category"); // 카테고리 가져오기
-            int quantity = rs.getInt("quantity"); // 수량 가져오기
-            boolean isRented = rs.getBoolean("isRented"); // 대여 여부 가져오기
+            int bookId = rs.getInt("bookId");
+            String bookName = rs.getString("bookName");
+            String authorName = rs.getString("author");
+            String publisher = rs.getString("publisher");
+            String categoryName = rs.getString("category");
+            int quantity = rs.getInt("quantity");
 
             // 도서 정보를 출력
-            System.out.println("도서 ID: " + bookId + ", 제목: " + title + ", 저자: " + author + ", 출판사: " + publisher + ", 카테고리: " + category + ", 수량: " + quantity + ", 대여 여부: " + (isRented ? "대여 중" : "가능"));
+            System.out.println("도서 ID: " + bookId + ", 제목: " + bookName + ", 저자: " + authorName + ", 출판사: " + publisher + ", 카테고리: " + categoryName + ", 수량: " + quantity);            
         }
-
-        // 자원 정리: ResultSet, PreparedStatement, Connection 닫기
+        
+        // 자원 해제
         rs.close();
         pstmt.close();
         conn.close();
     }
+
 
     // 도서를 대여하는 메서드
     public static void rentBook(Connection conn, int rentBookId, int memberId) throws SQLException {
