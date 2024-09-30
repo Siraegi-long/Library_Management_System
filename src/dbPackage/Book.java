@@ -89,7 +89,7 @@ public class Book {
     }
 
     // 도서를 대여하는 메서드
-    public static void rentBook(int bookId, int memberId) throws SQLException {
+    public static void rentBook(Connection conn, int rentBookId, int memberId) throws SQLException {
         Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
         String query = "UPDATE books SET isRented = true WHERE bookId = ?"; // 도서를 대여하는 SQL 쿼리
         PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
@@ -109,7 +109,7 @@ public class Book {
     }
 
     // 도서를 반납하는 메서드
-    public static void returnBook(int bookId) throws SQLException {
+    public static void returnBook(Connection conn, int returnBookId) throws SQLException {
         Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
         String query = "UPDATE books SET isRented = false WHERE bookId = ?"; // 도서를 반납하는 SQL 쿼리
         PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
