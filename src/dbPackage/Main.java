@@ -4,6 +4,10 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+
+        System.out.println("  /\\_/\\  티니티니");
+        System.out.println(" ( o.o )  티니티니");
+        System.out.println("  > ^ <  티니티니핑");
         // 스캐너 객체 생성 - 사용자 입력을 받기 위해 사용
         Scanner scanner = new Scanner(System.in);
         
@@ -15,6 +19,7 @@ public class Main {
 
         // 프로그램이 종료될 때까지 계속 실행되는 무한 루프
         while (true) {
+        	
             // 메인 메뉴 출력
             System.out.println("=== 티니핑 대도서관 ===");
             System.out.println("1. 로그인");
