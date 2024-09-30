@@ -1,8 +1,8 @@
-package dbPackage; // dbPackage라는 패키지에 속하는 클래스
+package dbPackage;
 
-import java.sql.Connection; // JDBC의 Connection 인터페이스를 사용하기 위한 패키지
-import java.sql.DriverManager; // JDBC의 DriverManager 클래스를 사용하기 위한 패키지
-import java.sql.SQLException; // SQL 예외 처리를 위한 패키지
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 // DBConnection 클래스는 데이터베이스 연결을 관리하는 역할을 한다.
 public class DBConnection {
