@@ -18,13 +18,13 @@ public class Admin {
     }
 
     // 회원 관리 기능을 실행하는 메서드
-    public void manageUsers() {
+    public void manageUsers(Connection conn) {
         // 회원 관리 로직은 아직 구현되지 않았음을 알리는 메시지 출력
         System.out.println("회원 관리 기능은 아직 구현되지 않았습니다.");
     }
 
     // 도서 관리 기능을 실행하는 메서드
-    public void manageBooks() {
+    public void manageBooks(Connection conn) {
         // Scanner 객체를 통해 사용자 입력을 받음
         Scanner scanner = new Scanner(System.in);
         
@@ -69,6 +69,12 @@ public class Admin {
                     System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
             }
         }
+    }
+
+    // 대여 연장 요청 승인 메서드
+    public void approveExtension(Connection conn) {
+        // 대여 연장 승인 로직은 아직 구현되지 않았음을 알리는 메시지 출력
+        System.out.println("대여 연장 승인 기능은 아직 구현되지 않았습니다.");
     }
 
     // 도서 추가 메서드
@@ -200,7 +206,7 @@ public class Admin {
             if (rowsAffected > 0) {
                 System.out.println("도서가 삭제되었습니다."); // 삭제 완료 메시지 출력
             } else {
-                System.out.println("해당 ID의 도서를 찾을 수 없습니다."); // 삭제 실패 메시지 출력
+                System.out.println("해당 ID의 도서를 찾을 수 없습니다."); // 도서 미발견 메시지 출력
             }
 
             pstmt.close(); // PreparedStatement 닫기
@@ -210,32 +216,27 @@ public class Admin {
         }
     }
 
-    // 도서 목록 보기 메서드
+    // 도서 목록 출력 메서드
     private void listBooks() {
         try {
-            // 도서 목록 조회하는 SQL 쿼리
+            // 도서 목록을 조회하는 SQL 쿼리
             String query = "SELECT * FROM books";
-            PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
+            Statement stmt = conn.createStatement(); // Statement 객체 생성
             
-            // 쿼리 실행하여 결과 집합을 가져옴
-            ResultSet rs = pstmt.executeQuery();
+            // 쿼리 실행하여 결과 집합 가져옴
+            ResultSet rs = stmt.executeQuery(query);
 
-            // 도서 목록 출력 헤더
+            // 도서 목록 출력
             System.out.println("=== 도서 목록 ===");
-            // 결과 집합을 순회하며 도서 정보 출력
             while (rs.next()) {
-                System.out.println("도서 ID: " + rs.getInt("bookId") +
-                        ", 제목: " + rs.getString("title") +
-                        ", 저자: " + rs.getString("author") +
-                        ", 출판사: " + rs.getString("publisher") +
-                        ", 출판일: " + rs.getString("publicationDate") +
-                        ", 카테고리: " + rs.getString("category") +
-                        ", 수량: " + rs.getInt("quantity") +
-                        ", 대여 여부: " + (rs.getBoolean("isRented") ? "대여 중" : "가능"));
+                // 각 도서의 정보를 출력
+                System.out.println("ID: " + rs.getInt("bookId") + ", 제목: " + rs.getString("title") + ", 저자: " + rs.getString("author")
+                    + ", 출판사: " + rs.getString("publisher") + ", 출판일: " + rs.getString("publicationDate") + ", 카테고리: " 
+                    + rs.getString("category") + ", 수량: " + rs.getInt("quantity") + ", 대여 중: " + rs.getBoolean("isRented"));
             }
 
             rs.close(); // ResultSet 닫기
-            pstmt.close(); // PreparedStatement 닫기
+            stmt.close(); // Statement 닫기
         } catch (SQLException e) {
             // 도서 목록 조회 중 오류 발생 시 메시지 출력
             System.out.println("도서 목록 조회 중 오류 발생: " + e.getMessage());
