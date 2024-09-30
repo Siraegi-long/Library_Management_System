@@ -65,13 +65,28 @@ public class Book {
         Scanner scanner = new Scanner(System.in);
         Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
 
-        System.out.println("검색할 기준을 선택하세요:");
-        System.out.println("1. 도서명");
-        System.out.println("2. 저자");
-        System.out.println("3. 카테고리");
-        System.out.print("선택 (1/2/3): ");
-        int choice = scanner.nextInt();
-        scanner.nextLine(); // 줄바꿈 제거
+        int choice = 0;
+
+        // 사용자가 올바른 선택을 할 때까지 반복
+        while (choice < 1 || choice > 3) {
+            System.out.println("검색할 기준을 선택하세요:");
+            System.out.println("1. 도서명");
+            System.out.println("2. 저자");
+            System.out.println("3. 카테고리");
+            System.out.print("선택 (1/2/3): ");
+
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                scanner.nextLine(); // 줄바꿈 제거
+
+                if (choice < 1 || choice > 3) {
+                    System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
+                }
+            } else {
+                System.out.println("숫자를 입력해주세요.");
+                scanner.next(); // 잘못된 입력 처리 (숫자가 아닌 입력)
+            }
+        }
 
         String query = "SELECT * FROM booktbl WHERE ";
         String filter = "";
@@ -160,7 +175,7 @@ public class Book {
             switch (select) {
                 case "Y":
                     // 대여 처리: 도서 대여 정보 업데이트
-                    String updateBook = "UPDATE booktbl SET rentalDate = CURRENT_DATE(), rentalId = ? WHERE bookId = ?";
+                    String updateBook = "UPDATE booktbl SET rentalDate = CURRENT_DATE(),quantity = (quantity)-1, rentalId = ? WHERE bookId = ?";
                     PreparedStatement updatePstmt = conn.prepareStatement(updateBook);
                     updatePstmt.setInt(1, /* 대여자의 ID */ 1);  // 실제 대여자의 ID로 변경 필요
                     updatePstmt.setInt(2, bookId);  // 도서 ID를 이용하여 해당 책을 업데이트
