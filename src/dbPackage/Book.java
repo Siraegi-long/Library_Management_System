@@ -160,7 +160,7 @@ public class Book {
             switch (select) {
                 case "Y":
                     // 대여 처리: 도서 대여 정보 업데이트
-                    String updateBook = "UPDATE booktbl SET rentalDate = CURRENT_DATE(), rentalId = ? WHERE bookId = ?";
+                    String updateBook = "UPDATE booktbl SET rentalDate = CURRENT_DATE(),quantity = (quantity)-1, rentalId = ? WHERE bookId = ?";
                     PreparedStatement updatePstmt = conn.prepareStatement(updateBook);
                     updatePstmt.setInt(1, /* 대여자의 ID */ 1);  // 실제 대여자의 ID로 변경 필요
                     updatePstmt.setInt(2, bookId);  // 도서 ID를 이용하여 해당 책을 업데이트
