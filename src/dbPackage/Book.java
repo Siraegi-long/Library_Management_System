@@ -62,9 +62,8 @@ public class Book {
     }
 
     // 도서 제목을 기반으로 도서를 검색하는 메서드
-    public static void searchBook() throws SQLException {
+    public static void searchBook(Connection conn) throws SQLException {
         Scanner scanner = new Scanner(System.in);
-        Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
 
         int choice = 0;
 
@@ -139,13 +138,11 @@ public class Book {
         // 자원 해제
         rs.close();
         pstmt.close();
-        conn.close();
     }
 
     // 도서를 대여하는 메서드
-    public static void rentBook(Member member) throws SQLException {
-        Scanner scanner = new Scanner(System.in);
-        Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
+    public static void rentBook(Member member,Connection conn) throws SQLException {
+        Scanner scanner = new Scanner(System.in);// 데이터베이스 연결
 
         try {
             // 트랜잭션 시작
@@ -187,6 +184,7 @@ public class Book {
 
                 if (!select.equalsIgnoreCase("Y")) {
                     System.out.println("도서 대여를 취소하셨습니다.");
+                    
                     return;
                 }
 
@@ -224,7 +222,6 @@ public class Book {
 
             rs.close();
             pstmt.close();
-            scanner.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -235,73 +232,99 @@ public class Book {
             // 자원 해제 및 트랜잭션 종료
             if (conn != null) {
                 conn.setAutoCommit(true); // 자동 커밋 모드로 복구
-                conn.close();
             }
 
         }
     }
 
     // 도서를 반납하는 메서드
-    public static void returnBook(Member member) throws SQLException {
+    public static void returnBook(Member member,Connection conn) throws SQLException {
         Scanner scanner = new Scanner(System.in);
-        Connection conn = DBConnection.getConnection();
         System.out.println("반납할 책 제목을 입력해주세요: ");
         String bookTitle = scanner.nextLine();
+        
+
         try {
-            conn.setAutoCommit(false); // 수동으로 트랜잭션 관리
+            conn.setAutoCommit(false); // 트랜잭션 시작
 
-            String updateBookQuery = "UPDATE booktbl SET quantity = quantity + 1 WHERE bookName = ?";
-            PreparedStatement updateBookStmt = conn.prepareStatement(updateBookQuery);
-            updateBookStmt.setString(1, bookTitle);
-            int bookupdateRows = updateBookStmt.executeUpdate();
+            // 1. 도서 ID 조회
+            String getBookQuery = "SELECT bookId, quantity FROM booktbl WHERE bookName like ?";
+            PreparedStatement getBookStmt = conn.prepareStatement(getBookQuery);
+            getBookStmt.setString(1, "%" + bookTitle.trim() + "%");
 
-            if (bookupdateRows == 0) {
+            ResultSet rs = getBookStmt.executeQuery();
+            if (!rs.next()) {
                 System.out.println("해당 도서를 찾을 수 없습니다.");
-                conn.rollback(); // 해당 도서를 찾을 수 없을 시 롤백
+                conn.rollback();
                 return;
             }
 
-            // 반납 확인 메시지 출력
+            int bookId = rs.getInt("bookId");
+            int quantity = rs.getInt("quantity");
+
+            // 2. 반납 여부 확인
             System.out.println("해당 도서를 반납하시겠습니까? : Y / N");
             String userInput = scanner.nextLine();
 
             if (userInput.equalsIgnoreCase("Y")) {
-                String updateRentalQuery = "UPDATE booktbl SET rentalDate = ? WHERE bookid = ? AND rentalDate IS NULL";
+                // 3. rentalTbl에서 대여 기록 업데이트 (반납 처리)
+                String updateRentalQuery = "UPDATE rentalTbl SET returnDate = CURRENT_DATE() WHERE bookID = ? AND memberID = ? AND returnDate IS NULL";
                 PreparedStatement updateRentalStmt = conn.prepareStatement(updateRentalQuery);
-                updateRentalStmt.setDate(1, new java.sql.Date(System.currentTimeMillis())); // 현재 날짜로 반납 날짜 설정
-                updateRentalStmt.setInt(2, returnBookId);
-                int rentalupdateRows = updateRentalStmt.executeUpdate();
+                updateRentalStmt.setInt(1, bookId);
+                updateRentalStmt.setString(2, member.getMemberId());  // 대여자의 ID
 
-                System.out.println("도서 반납이 완료되었습니다."); // 반납 완료 메시지 출력
-                conn.commit(); // 수동 커밋
-                updateRentalStmt.close(); // 자원 정리 : PreparedStatement 닫기
+                int rentalupdateRows = updateRentalStmt.executeUpdate();
+                if (rentalupdateRows == 0) {
+                    System.out.println("대여 기록을 찾을 수 없습니다. 반납할 수 없습니다.");
+                    conn.rollback();
+                    return;
+                }
+
+                // 4. 도서 수량 복구
+                String updateBookQuery = "UPDATE booktbl SET quantity = quantity + 1 WHERE bookId = ?";
+                PreparedStatement updateBookStmt = conn.prepareStatement(updateBookQuery);
+                updateBookStmt.setInt(1, bookId);
+                int bookupdateRows = updateBookStmt.executeUpdate();
+
+                if (bookupdateRows > 0) {
+                    System.out.println("도서 반납이 완료되었습니다.");
+                    conn.commit(); // 성공 시 커밋
+                } else {
+                    System.out.println("도서 반납에 실패하였습니다.");
+                    conn.rollback(); // 실패 시 롤백
+                }
+
+                // 자원 해제
+                updateRentalStmt.close();
+                updateBookStmt.close();
+
             } else if (userInput.equalsIgnoreCase("N")) {
                 System.out.println("도서 반납이 취소되었습니다.");
-                conn.rollback(); // 반납이 취소되면 롤백
+                conn.rollback(); // 반납 취소 시 롤백
             } else {
                 System.out.println("잘못된 입력입니다. 반납이 취소되었습니다.");
-                conn.rollback(); // 잘못된 입력해도 롤백
+                conn.rollback(); // 잘못된 입력일 경우 롤백
             }
-            updateBookStmt.close(); // 자원 정리: PreparedStatement 닫기
 
         } catch (SQLException e) {
             if (conn != null) {
-                conn.rollback(); // 예외 발생시 롤백
+                conn.rollback(); // 예외 발생 시 롤백
             }
             e.printStackTrace();
         } finally {
             if (conn != null && !conn.isClosed()) {
-                conn.setAutoCommit(true); // 다시 자동 커밋 모드로
-                conn.close(); // 디비 커넥션 닫기
+                conn.setAutoCommit(true); // 자동 커밋 모드 복구
+                conn.close(); // DB 연결 닫기
             }
+            scanner.close();
         }
     }
+
 
     // ======================================= ADMIN 구역 ==============================================
 
     // 도서를 등록하는 메서드
-    public static void addBook(Book book) throws SQLException {
-        Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
+    public static void addBook(Book book,Connection conn) throws SQLException {
         String query = "INSERT INTO books (title, author, publisher, publicationDate, category, quantity, isRented) VALUES (?, ?, ?, ?, ?, ?, ?)"; // 도서
         // 등록
         // SQL
@@ -319,13 +342,11 @@ public class Book {
 
         // 자원 정리: PreparedStatement, Connection 닫기
         pstmt.close();
-        conn.close();
         System.out.println("도서 등록이 완료되었습니다."); // 등록 완료 메시지 출력
     }
 
     // 도서를 삭제하는 메서드
-    public static void deleteBook(int bookId) throws SQLException {
-        Connection conn = DBConnection.getConnection(); // 데이터베이스 연결
+    public static void deleteBook(int bookId,Connection conn) throws SQLException {
         String query = "DELETE FROM books WHERE bookId = ?"; // 도서 삭제 SQL 쿼리
         PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
         pstmt.setInt(1, bookId); // 삭제할 도서 ID 설정
@@ -339,6 +360,5 @@ public class Book {
 
         // 자원 정리: PreparedStatement, Connection 닫기
         pstmt.close();
-        conn.close();
     }
 }
