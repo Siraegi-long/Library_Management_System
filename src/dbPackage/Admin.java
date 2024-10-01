@@ -10,7 +10,7 @@ public class Admin {
     public Admin() {
         try {
             // DBConnection 클래스에서 데이터베이스 연결을 가져옴
-            conn = DBConnection.getConnection(); 
+            conn = DBConnection.getConnection();
         } catch (SQLException e) {
             // 연결 실패 시 오류 메시지 출력
             System.out.println("데이터베이스 연결 오류: " + e.getMessage());
@@ -27,7 +27,7 @@ public class Admin {
     public void manageBooks(Connection conn) {
         // Scanner 객체를 통해 사용자 입력을 받음
         Scanner scanner = new Scanner(System.in);
-        
+
         // 도서 관리 기능 선택을 위한 무한 루프
         while (true) {
             // 도서 관리 메뉴 출력
@@ -38,7 +38,7 @@ public class Admin {
             System.out.println("4. 도서 목록 보기");
             System.out.println("5. 뒤로 가기");
             System.out.print("선택: ");
-            
+
             // 사용자 선택 입력 받기
             int choice = scanner.nextInt();
             scanner.nextLine(); // 입력 후 남은 버퍼 비우기
@@ -47,19 +47,19 @@ public class Admin {
             switch (choice) {
                 case 1:
                     // 도서 추가 메서드 호출
-                    addBook(scanner); 
+                    addBook(scanner);
                     break;
                 case 2:
                     // 도서 수정 메서드 호출
-                    updateBook(scanner); 
+                    updateBook(scanner);
                     break;
                 case 3:
                     // 도서 삭제 메서드 호출
-                    deleteBook(scanner); 
+                    deleteBook(scanner);
                     break;
                 case 4:
                     // 도서 목록 보기 메서드 호출
-                    listBooks(); 
+                    listBooks();
                     break;
                 case 5:
                     // 메뉴 종료, 이전 메뉴로 돌아감
@@ -83,7 +83,7 @@ public class Admin {
         System.out.print("도서 ID: ");
         int bookId = scanner.nextInt();
         scanner.nextLine(); // 버퍼 비우기
-        
+
         // 도서 제목, 저자, 출판사, 출판일, 카테고리, 수량 입력 받음
         System.out.print("제목: ");
         String title = scanner.nextLine();
@@ -102,7 +102,7 @@ public class Admin {
             // 도서 정보를 데이터베이스에 삽입하는 SQL 쿼리 작성
             String query = "INSERT INTO books (bookId, title, author, publisher, publicationDate, category, quantity, isRented) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
-            
+
             // 쿼리에 값 설정
             pstmt.setInt(1, bookId);
             pstmt.setString(2, title);
@@ -112,11 +112,11 @@ public class Admin {
             pstmt.setString(6, category);
             pstmt.setInt(7, quantity);
             pstmt.setBoolean(8, false); // 초기 대여 여부는 false
-            
+
             // 쿼리 실행
             pstmt.executeUpdate();
             System.out.println("도서가 추가되었습니다."); // 추가 완료 메시지 출력
-            
+
             pstmt.close(); // PreparedStatement 닫기
         } catch (SQLException e) {
             // 도서 추가 중 오류 발생 시 메시지 출력
@@ -136,7 +136,7 @@ public class Admin {
             String query = "SELECT * FROM books WHERE bookId = ?";
             PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
             pstmt.setInt(1, bookId); // 도서 ID 설정
-            
+
             // 쿼리 실행하여 결과 집합을 가져옴
             ResultSet rs = pstmt.executeQuery();
 
@@ -159,7 +159,7 @@ public class Admin {
                 // 도서 정보를 업데이트하는 SQL 쿼리
                 String updateQuery = "UPDATE books SET title = ?, author = ?, publisher = ?, publicationDate = ?, category = ?, quantity = ? WHERE bookId = ?";
                 PreparedStatement updateStmt = conn.prepareStatement(updateQuery); // PreparedStatement 객체 생성
-                
+
                 // 쿼리에 값 설정, 빈 문자열인 경우 기존 값 유지
                 updateStmt.setString(1, title.isEmpty() ? rs.getString("title") : title);
                 updateStmt.setString(2, author.isEmpty() ? rs.getString("author") : author);
@@ -172,7 +172,7 @@ public class Admin {
                 // 쿼리 실행
                 updateStmt.executeUpdate();
                 System.out.println("도서 정보가 수정되었습니다."); // 수정 완료 메시지 출력
-                
+
                 updateStmt.close(); // PreparedStatement 닫기
             } else {
                 // 해당 ID의 도서를 찾을 수 없을 때 메시지 출력
@@ -198,7 +198,7 @@ public class Admin {
             String query = "DELETE FROM books WHERE bookId = ?";
             PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
             pstmt.setInt(1, bookId); // 도서 ID 설정
-            
+
             // 쿼리 실행하여 영향을 받은 행 수 확인
             int rowsAffected = pstmt.executeUpdate();
 
@@ -222,7 +222,7 @@ public class Admin {
             // 도서 목록을 조회하는 SQL 쿼리
             String query = "SELECT * FROM books";
             Statement stmt = conn.createStatement(); // Statement 객체 생성
-            
+
             // 쿼리 실행하여 결과 집합 가져옴
             ResultSet rs = stmt.executeQuery(query);
 
@@ -231,8 +231,8 @@ public class Admin {
             while (rs.next()) {
                 // 각 도서의 정보를 출력
                 System.out.println("ID: " + rs.getInt("bookId") + ", 제목: " + rs.getString("title") + ", 저자: " + rs.getString("author")
-                    + ", 출판사: " + rs.getString("publisher") + ", 출판일: " + rs.getString("publicationDate") + ", 카테고리: " 
-                    + rs.getString("category") + ", 수량: " + rs.getInt("quantity") + ", 대여 중: " + rs.getBoolean("isRented"));
+                        + ", 출판사: " + rs.getString("publisher") + ", 출판일: " + rs.getString("publicationDate") + ", 카테고리: "
+                        + rs.getString("category") + ", 수량: " + rs.getInt("quantity") + ", 대여 중: " + rs.getBoolean("isRented"));
             }
 
             rs.close(); // ResultSet 닫기
