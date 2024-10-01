@@ -18,12 +18,12 @@ public class Member {
         this.name = name;
         this.password = password;
         this.memberGrade = memberGrade;
-        
+
     }
 
     public void registerMember() {
         // 유효성 검사
-    	Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         String id = null;
         String pw = null;
         String name;
@@ -92,23 +92,23 @@ public class Member {
             break; // 전화번호가 유효하면 탈출
         }
 
-            // 회원 등록
-            String insertQuery = "INSERT INTO usertbl (name, memberGrade, ID, PW, phone) VALUES (?, '일반', ?, ?, ?)";
-            try (PreparedStatement insertStmt = DBConnection.getConnection().prepareStatement(insertQuery)) {
-                insertStmt.setString(1, name);
-                insertStmt.setString(2, id);
-                insertStmt.setString(3, pw);
-                insertStmt.setString(4, phone);
-                insertStmt.executeUpdate();
-                System.out.println("회원가입이 완료되었습니다.");
-            } catch (SQLException e) {
+        // 회원 등록
+        String insertQuery = "INSERT INTO usertbl (name, memberGrade, ID, PW, phone) VALUES (?, '일반', ?, ?, ?)";
+        try (PreparedStatement insertStmt = DBConnection.getConnection().prepareStatement(insertQuery)) {
+            insertStmt.setString(1, name);
+            insertStmt.setString(2, id);
+            insertStmt.setString(3, pw);
+            insertStmt.setString(4, phone);
+            insertStmt.executeUpdate();
+            System.out.println("회원가입이 완료되었습니다.");
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    
+
     private static boolean isDuplicateID(String pid) {
         boolean isDuplicate = false;
-        
+
         try (Connection conn = DBConnection.getConnection()) {
             String query = "SELECT COUNT(*) FROM UserTbl WHERE ID = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -124,9 +124,9 @@ public class Member {
         }
         return isDuplicate;
     }
-       
-        
-    
+
+
+
 
     public static Member login(Connection conn, String inputId, String inputPw) {
         // 로그인 로직 (DB에서 사용자 정보 확인)

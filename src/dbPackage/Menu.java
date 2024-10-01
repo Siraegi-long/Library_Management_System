@@ -11,8 +11,8 @@ public class Menu {
     private Admin admin = new Admin();
 
     public void JoinTitle() {
-    	System.out.println("- 티니핑 라이브러리 -");
-    	System.out.println("");
+        System.out.println("- 티니핑 라이브러리 -");
+        System.out.println("");
         System.out.println("	   ／＞　 フ		 .---. .-..-. .-..-..----. .-..-. .-. .---. ");
         System.out.println("	  | 　_　_|		{_   _}| ||  `| || || {}  }| ||  `| |/   __} ");
         System.out.println("	／` ミ＿x ノ		  | |  | || |\\| || || |-'' | || |`_ |   \\");
@@ -23,20 +23,20 @@ public class Menu {
         System.out.println("	  `￣|　|　|		| `--.| || {}  }| .-.\\/   /\\ \\ | .-. \\	 }  {  ");
         System.out.println("	      `ー'`ー'		`----'`-'`----' `-' `-' `-'  `-' `-'-'	 `--'    ");
         System.out.println("");
-    
+
     }
-    
+
     // 메인메뉴
     public void MainMenu() {
         Scanner scanner = new Scanner(System.in);
-        
-        // 입력 유효성 검사 및 예외처리 
+
+        // 입력 유효성 검사 및 예외처리
         int main_Menu_Choice = 0;
-        
+
         while (main_Menu_Choice < 1 || main_Menu_Choice > 3) {
-        	
-        	System.out.println("=======================================");
-        	System.out.println("");
+
+            System.out.println("=======================================");
+            System.out.println("");
             System.out.println("         ★ 티니핑 대도서관 ★         ");
             System.out.println("");
             System.out.println("=======================================");
@@ -52,7 +52,7 @@ public class Menu {
             System.out.print("숫자를 입력해주세요: ");
 
             if (scanner.hasNextInt()) {
-            	main_Menu_Choice = scanner.nextInt();
+                main_Menu_Choice = scanner.nextInt();
                 scanner.nextLine(); // 줄바꿈 제거
 
             } else {
@@ -71,7 +71,8 @@ public class Menu {
                             if (currentUser.getMemberGrade().equals("관리자")) {
                                 adminMenu(admin, conn); // 관리자 메뉴 호출
                             } else {
-                                Menu.userMenu(currentUser, conn); // 일반 사용자 메뉴 호출
+                                Menu.userMenu(currentUser, conn);// 일반 사용자 메뉴 호출
+                                main_Menu_Choice = 0;
                             }
                         } else {
                             System.out.println("로그인 실패: 잘못된 ID 또는 비밀번호입니다!");
@@ -112,7 +113,7 @@ public class Menu {
             }
         }
     }
-    
+
     // 로그인 메뉴
     public static Member loginMenu(Connection conn) throws SQLException {
         Scanner scanner = new Scanner(System.in);
@@ -129,9 +130,9 @@ public class Menu {
     public static void userMenu(Member member, Connection conn) throws SQLException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-        	System.out.println("=======================================");
-        	System.out.println("");
-        	System.out.println("      - 사용자 메뉴를 선택해주세요. -");
+            System.out.println("=======================================");
+            System.out.println("");
+            System.out.println("      - 사용자 메뉴를 선택해주세요. -");
             System.out.println("");
             System.out.println("=======================================");
             System.out.println("");
@@ -150,7 +151,8 @@ public class Menu {
                     Book.searchBook(); // 도서 검색
                     break;
                 case 2:
-                	Book.rentBook();
+                    Book.rentBook(member);
+
                     break;
                 case 3:
                     Book.returnBook(conn, choice); // 반납
@@ -164,6 +166,7 @@ public class Menu {
                 default:
                     System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
             }
+
         }
     }
 
