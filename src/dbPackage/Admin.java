@@ -100,7 +100,7 @@ public class Admin {
 
         try {
             // 도서 정보를 데이터베이스에 삽입하는 SQL 쿼리 작성
-            String query = "INSERT INTO books (bookId, title, author, publisher, publicationDate, category, quantity, isRented) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO booktbl (bookId, title, author, publisher, publicationDate, category, quantity, isRented) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
 
             // 쿼리에 값 설정
@@ -133,7 +133,7 @@ public class Admin {
 
         try {
             // 도서 ID로 기존 도서 정보를 조회하는 SQL 쿼리
-            String query = "SELECT * FROM books WHERE bookId = ?";
+            String query = "SELECT * FROM booktbl WHERE bookId = ?";
             PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
             pstmt.setInt(1, bookId); // 도서 ID 설정
 
@@ -157,7 +157,7 @@ public class Admin {
                 int quantity = scanner.nextInt();
 
                 // 도서 정보를 업데이트하는 SQL 쿼리
-                String updateQuery = "UPDATE books SET title = ?, author = ?, publisher = ?, publicationDate = ?, category = ?, quantity = ? WHERE bookId = ?";
+                String updateQuery = "UPDATE booktbl SET title = ?, author = ?, publisher = ?, publicationDate = ?, category = ?, quantity = ? WHERE bookId = ?";
                 PreparedStatement updateStmt = conn.prepareStatement(updateQuery); // PreparedStatement 객체 생성
 
                 // 쿼리에 값 설정, 빈 문자열인 경우 기존 값 유지
@@ -195,7 +195,7 @@ public class Admin {
 
         try {
             // 도서를 삭제하는 SQL 쿼리
-            String query = "DELETE FROM books WHERE bookId = ?";
+            String query = "DELETE FROM booktbl WHERE bookId = ?";
             PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
             pstmt.setInt(1, bookId); // 도서 ID 설정
 

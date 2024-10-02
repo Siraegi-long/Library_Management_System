@@ -8,7 +8,7 @@ public class DBConnection {
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String URL = "jdbc:mysql://localhost:3306/librarydb"; // 데이터베이스 URL 설정
     private static final String USER = "root"; // 데이터베이스 사용자 이름 설정
-    private static final String PASSWORD = "71028776"; // 데이터베이스 비밀번호 설정
+    private static final String PASSWORD = "0000"; // 데이터베이스 비밀번호 설정
 
     // 데이터베이스 연결 인스턴스 (싱글톤 패턴으로 사용)
     private static Connection conn = null;

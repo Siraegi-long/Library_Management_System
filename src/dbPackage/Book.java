@@ -314,7 +314,7 @@ public class Book {
         } finally {
             if (conn != null && !conn.isClosed()) {
                 conn.setAutoCommit(true); // 자동 커밋 모드 복구
-                conn.close(); // DB 연결 닫기
+    
             }
             scanner.close();
         }
