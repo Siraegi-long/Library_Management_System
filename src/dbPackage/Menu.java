@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Menu {
-    private Scanner scanner = new Scanner(System.in);
+    private static Scanner scanner = new Scanner(System.in);
     private Member member = null;
     private Member currentUser = null;
     private Admin admin = new Admin();
@@ -120,9 +120,8 @@ public class Menu {
         return Member.login(conn, inputId, inputPw); // 로그인 시 데이터베이스에서 확인
     }
 
-    // 사용자 메뉴
+ // 사용자 메뉴
     public static void userMenu(Member member, Connection conn) throws SQLException {
-        Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("=======================================");
             System.out.println("");
@@ -137,27 +136,20 @@ public class Menu {
             System.out.println("	    5. 로그아웃");
             System.out.println("");
             System.out.print("숫자를 입력해주세요: ");
-            
-            int choice = 0;
 
-            if (scanner.hasNextInt()) {
-                choice = scanner.nextInt();
-                scanner.nextLine(); // 줄바꿈 제거
-            } else {
-                System.out.println("잘못된 입력입니다. 숫자를 입력해주세요.");
-                scanner.next(); // 잘못된 입력 소비 (숫자가 아닌 값을 제거)
-                continue; // 다시 메뉴로 돌아가 입력 요청
-            }
-            
+            if (scanner.hasNextInt()) { // 정수인지 확인
+                int choice = scanner.nextInt(); // 정수 입력 받기
+                scanner.nextLine(); // 남아있는 줄바꿈 제거
+
                 switch (choice) {
                     case 1:
                         Book.searchBook(conn); // 도서 검색
                         break;
                     case 2:
-                        Book.rentBook(member,conn); // 도서 대여
+                        Book.rentBook(member, conn); // 도서 대여
                         break;
                     case 3:
-                        Book.returnBook(member,conn); // 도서 반납
+                        Book.returnBook(member, conn); // 도서 반납
                         break;
                     case 4:
                         member.viewMemberInfo(); // 회원 정보 보기
@@ -168,9 +160,13 @@ public class Menu {
                     default:
                         System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
                 }
-            
+            } else {
+                System.out.println("잘못된 입력입니다. 숫자를 입력해주세요.");
+                scanner.nextLine(); // 잘못된 입력을 처리하고, 줄바꿈을 소비함
+            }
         }
     }
+
 
     // 관리자 메뉴
     public static void adminMenu(Admin admin, Connection conn) throws SQLException {
