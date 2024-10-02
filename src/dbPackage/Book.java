@@ -97,6 +97,8 @@ public class Book {
                 System.out.print("검색할 도서명을 입력하세요: ");
                 searchValue = scanner.nextLine();
                 filter = "bookName LIKE ?";
+              
+                
                 break;
             case 2:
                 System.out.print("검색할 저자를 입력하세요: ");
@@ -120,6 +122,12 @@ public class Book {
         pstmt.setString(1, "%" + searchValue + "%");
 
         ResultSet rs = pstmt.executeQuery(); // 쿼리 실행하여 결과 집합 가져오기
+        
+        if (!rs.next()) {
+        	System.out.println("없는 도서 입니다. 다시 선택해주세요.");
+        	Book.searchBook(conn);
+        }
+        
 
         // 결과 집합을 순회하며 도서 정보를 출력
         while (rs.next()) {
@@ -134,7 +142,7 @@ public class Book {
             System.out.println("도서 ID: " + bookId + ", 제목: " + bookName + ", 저자: " + authorName + ", 출판사: " + publisher
                     + ", 카테고리: " + categoryName + ", 수량: " + quantity);
         }
-
+        
         // 자원 해제
         rs.close();
         pstmt.close();
@@ -150,6 +158,8 @@ public class Book {
 
             System.out.println("대여할 책 제목을 입력해주세요: ");
             String bookTitle = scanner.nextLine(); // 책 제목을 문자열로 입력받기
+            scanner.nextLine();
+            
 
             String query = "SELECT * FROM booktbl WHERE bookName LIKE ?";
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -181,6 +191,7 @@ public class Book {
 
                 System.out.println("해당 도서를 대여 하시겠습니까?: Y / N");
                 String select = scanner.nextLine();
+                scanner.nextLine();
 
                 if (!select.equalsIgnoreCase("Y")) {
                     System.out.println("도서 대여를 취소하셨습니다.");
@@ -314,7 +325,7 @@ public class Book {
         } finally {
             if (conn != null && !conn.isClosed()) {
                 conn.setAutoCommit(true); // 자동 커밋 모드 복구
-    
+                conn.close(); // DB 연결 닫기
             }
             scanner.close();
         }
