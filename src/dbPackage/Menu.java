@@ -1,123 +1,208 @@
 package dbPackage;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Menu {
     private Scanner scanner = new Scanner(System.in);
+    private Member member = null;
+    private Member currentUser = null;
     private Admin admin = new Admin();
-    private Member member = new Member();
 
-    // 초기 메뉴: 로그인 또는 회원가입
-    public void initMenu() {
+    // DBConnection 객체를 통해 연결을 가져옴
+    private Connection conn = null;
+
+    public Menu() {
         try {
-            System.out.println("1. 로그인");
-            System.out.println("2. 회원가입");
-            int choice = scanner.nextInt();
-
-            switch (choice) {
-                case 1:
-                    loginMenu(); // 로그인 메뉴 호출
-                    break;
-                case 2:
-                    member.registerMember(); // 회원가입 메서드 호출
-                    break;
-                default:
-                    System.out.println("잘못된 선택입니다.");
-                    initMenu(); // 초기 메뉴 재호출
-            }
+            conn = DBConnection.getConnection(); // DB 연결 초기화
         } catch (SQLException e) {
-            System.out.println("데이터베이스 오류: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("알 수 없는 오류 발생: " + e.getMessage());
+            System.out.println("DB 연결 실패: " + e.getMessage());
         }
     }
 
-    // 로그인 후 메뉴 제공
-    public void loginMenu() {
-        try {
-            System.out.println("로그인 정보를 입력하세요.");
-            String loginId = scanner.next();
-            String password = scanner.next();
+    public void JoinTitle() {
+        System.out.println("- 티니핑 라이브러리 -");
+        System.out.println("");
+        System.out.println("	   ／＞　 フ		 .---. .-..-. .-..-..----. .-..-. .-. .---. ");
+        System.out.println("	  | 　_　_|		{_   _}| ||  `| || || {}  }| ||  `| |/   __} ");
+        System.out.println("	／` ミ＿x ノ		  | |  | || |\\| || || |-'' | || |`_ |   \\");
+        System.out.println("	/　　　　 |		  `-'  `-'`-' `-'`-'`-'    `-'`-' `-' `---'  ");
+        System.out.println("	│　　  |　|			");
+        System.out.println("	／￣|　|　|　|		.-.   .-..----. .----.   .--.   .----. .-.  .-.");
+        System.out.println("	＼　|　|　|　|		| |   | || {}  }| {}  } / {} \\ | {}  }  \\ \\/ / ");
+        System.out.println("	  `￣|　|　|		| `--.| || {}  }| .-.\\/   /\\ \\ | .-. \\	 }  {  ");
+        System.out.println("	      `ー'`ー'		`----'`-'`----' `-' `-' `-'  `-' `-'-'	 `--'    ");
+        System.out.println("");
 
-            if (member.login(loginId, password)) {
-                // 회원 등급에 따라 다른 메뉴 제공
-                if (member.getMemberGrade().equals("관리자")) {
-                    adminMenu(); // 관리자 메뉴 호출
-                } else {
-                    userMenu(); // 일반 사용자 메뉴 호출
-                }
+    }
+
+    // 메인메뉴
+    public void MainMenu() throws SQLException {
+        int main_Menu_Choice = 0;
+
+        while (true) {
+            System.out.println("=======================================");
+            System.out.println("");
+            System.out.println("         ★ 티니핑 대도서관 ★         ");
+            System.out.println("");
+            System.out.println("=======================================");
+            System.out.println("");
+            System.out.println("	- 접속 경로를 선택해주세요. -");
+            System.out.println("");
+            System.out.println("	  1. 로그인(Login)");
+            System.out.println("	  2. 회원가입(Register)");
+            System.out.println("	  3. 종료(Exit)");
+            System.out.println("");
+            System.out.println("=======================================");
+            System.out.println("");
+            System.out.print("숫자를 입력해주세요: ");
+
+            if (scanner.hasNextInt()) {
+                main_Menu_Choice = scanner.nextInt();
+                scanner.nextLine(); // 줄바꿈 제거
             } else {
-                System.out.println("로그인에 실패했습니다.");
-                initMenu(); // 초기 메뉴 재호출
+                System.out.println("선택지(숫자)를 입력해주세요.");
+                scanner.next(); // 잘못된 입력 처리
+                continue; // 다시 입력을 받기 위해 루프 재시작
             }
-        } catch (SQLException e) {
-            System.out.println("데이터베이스 오류: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("알 수 없는 오류 발생: " + e.getMessage());
+
+            switch (main_Menu_Choice) {
+                case 1:
+                    currentUser = loginMenu(conn); // 로그인 메뉴 호출
+                    if (currentUser != null) {
+                        System.out.println("로그인 성공: " + currentUser.getName() + "님, 환영합니다.");
+                        if (currentUser.getMemberGrade().equals("관리자")) {
+                            adminMenu(admin, conn); // 관리자 메뉴 호출
+                        } else {
+                            userMenu(currentUser, conn);// 일반 사용자 메뉴 호출
+                        }
+                    } else {
+                        System.out.println("로그인 실패: 잘못된 ID 또는 비밀번호입니다!");
+                    }
+                    break;
+                case 2:
+                    Member newMember = new Member(null, null, null, null);
+                    newMember.registerMember(); // 회원 가입
+                    break;
+                case 3:
+                    System.out.println("");
+                    System.out.print("정말로 종료하시겠습니까? (Y/N): ");
+                    String exitChoice = scanner.nextLine().trim().toUpperCase();
+                    if (exitChoice.equals("Y")) {
+                        System.out.println("프로그램을 종료합니다.");
+                        DBConnection.closeConnection(); // DB 연결 종료
+                        System.exit(0);
+                    } else if (exitChoice.equals("N")) {
+                        System.out.println("접속 경로를 다시 선택해주세요.");
+                    } else {
+                        System.out.println("잘못된 선택입니다. 메뉴로 돌아갑니다.");
+                    }
+                    break;
+                default:
+                    System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
+            }
+        }
+    }
+
+    // 로그인 메뉴
+    public static Member loginMenu(Connection conn) throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("");
+        System.out.print("ID를 입력하세요: ");
+        String inputId = scanner.nextLine();
+        System.out.print("비밀번호를 입력하세요: ");
+        String inputPw = scanner.nextLine();
+        System.out.println("");
+        return Member.login(conn, inputId, inputPw); // 로그인 시 데이터베이스에서 확인
+    }
+
+    // 사용자 메뉴
+    public static void userMenu(Member member, Connection conn) throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("=======================================");
+            System.out.println("");
+            System.out.println("      - 사용자 메뉴를 선택해주세요. -");
+            System.out.println("");
+            System.out.println("=======================================");
+            System.out.println("");
+            System.out.println("	    1. 도서 검색");
+            System.out.println("	    2. 도서 대여");
+            System.out.println("	    3. 도서 반납");
+            System.out.println("	    4. 회원 정보 보기");
+            System.out.println("	    5. 로그아웃");
+            System.out.println("");
+            System.out.print("숫자를 입력해주세요: ");
+            
+            int choice = 0;
+
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                scanner.nextLine(); // 줄바꿈 제거
+            } else {
+                System.out.println("잘못된 입력입니다. 숫자를 입력해주세요.");
+                scanner.next(); // 잘못된 입력 소비 (숫자가 아닌 값을 제거)
+                continue; // 다시 메뉴로 돌아가 입력 요청
+            }
+            
+                switch (choice) {
+                    case 1:
+                        Book.searchBook(conn); // 도서 검색
+                        break;
+                    case 2:
+                        Book.rentBook(member,conn); // 도서 대여
+                        break;
+                    case 3:
+                        Book.returnBook(member,conn); // 도서 반납
+                        break;
+                    case 4:
+                        member.viewMemberInfo(); // 회원 정보 보기
+                        break;
+                    case 5:
+                        System.out.println("로그아웃 완료.");
+                        return;
+                    default:
+                        System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
+                }
+            
         }
     }
 
     // 관리자 메뉴
-    public void adminMenu() {
-        try {
-            System.out.println("관리자 메뉴입니다.");
-            System.out.println("1. 회원 관리");
-            System.out.println("2. 도서 관리");
-            System.out.println("3. 대여 연장 승인 관리");
-            int choice = scanner.nextInt();
+    public static void adminMenu(Admin admin, Connection conn) throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("=== 관리자 메뉴 ===");
+            System.out.println("1. 전체 회원 관리");
+            System.out.println("2. 도서 목록 관리");
+            System.out.println("3. 대여 연장 요청 승인");
+            System.out.println("4. 로그아웃");
+            System.out.print("선택: ");
 
-            switch (choice) {
-                case 1:
-                    admin.manageUsers(); // 회원 관리
-                    break;
-                case 2:
-                    admin.manageBooks(); // 도서 관리
-                    break;
-                case 3:
-                    admin.approveExtension(); // 대여 연장 승인 관리
-                    break;
-                default:
-                    System.out.println("잘못된 선택입니다.");
-                    adminMenu(); // 관리자 메뉴 재호출
+            if (scanner.hasNextInt()) {
+                int choice = scanner.nextInt();
+                scanner.nextLine(); // 줄바꿈 제거
+                switch (choice) {
+                    case 1:
+                        admin.manageUsers(conn); // 회원 관리
+                        break;
+                    case 2:
+                        admin.manageBooks(conn); // 도서 관리
+                        break;
+                    case 3:
+                        admin.approveExtension(conn); // 대여 연장 승인
+                        break;
+                    case 4:
+                        System.out.println("관리자 로그아웃 완료.");
+                        return;
+                    default:
+                        System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
+                }
+            } else {
+                System.out.println("숫자를 입력해주세요.");
+                scanner.next(); // 잘못된 입력 처리
             }
-        } catch (SQLException e) {
-            System.out.println("데이터베이스 오류: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("알 수 없는 오류 발생: " + e.getMessage());
-        }
-    }
-
-    // 일반 사용자 메뉴
-    public void userMenu() {
-        try {
-            System.out.println("1. 도서 검색");
-            System.out.println("2. 내 정보 조회");
-            System.out.println("3. 도서 대여 및 반납");
-            System.out.println("4. 대여 연장 요청");
-            int choice = scanner.nextInt();
-
-            switch (choice) {
-                case 1:
-                    member.searchBook(); // 도서 검색
-                    break;
-                case 2:
-                    member.viewMemberInfo(); // 내 정보 조회
-                    break;
-                case 3:
-                    member.rentOrReturnBook(); // 도서 대여 및 반납
-                    break;
-                case 4:
-                    member.extendRentalPeriod(); // 대여 연장 요청
-                    break;
-                default:
-                    System.out.println("잘못된 선택입니다.");
-                    userMenu(); // 잘못된 선택 시 다시 호출
-            }
-        } catch (SQLException e) {
-            System.out.println("데이터베이스 오류: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("알 수 없는 오류 발생: " + e.getMessage());
         }
     }
 }

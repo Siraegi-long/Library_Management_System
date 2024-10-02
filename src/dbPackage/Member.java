@@ -1,9 +1,11 @@
 package dbPackage;
 
+import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.DriverManager;
 
 public class Member {
     private String memberId;
@@ -16,47 +18,115 @@ public class Member {
         this.name = name;
         this.password = password;
         this.memberGrade = memberGrade;
+
     }
 
-    public void registerMember(Connection conn, String name, String id, String pw, String phone) {
+    public void registerMember() {
         // 유효성 검사
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("이름을 입력하세요.");
-        }
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException("ID를 입력하세요.");
-        }
-        if (pw == null || pw.length() < 8) {
-            throw new IllegalArgumentException("비밀번호는 최소 8자리 이상이어야 합니다.");
-        }
-        if (phone != null && phone.length() != 11) {
-            throw new IllegalArgumentException("전화번호는 11자리 숫자여야 합니다.");
-        }
+        Scanner scanner = new Scanner(System.in);
+        String id = null;
+        String pw = null;
+        String name;
+        String phone;
 
-        try {
-            // 중복 ID 확인
-            String checkQuery = "SELECT ID FROM usertbl WHERE ID = ?";
-            try (PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
-                checkStmt.setString(1, id);
-                ResultSet rs = checkStmt.executeQuery();
-                if (rs.next()) {
-                    throw new IllegalArgumentException("이미 사용 중인 ID입니다.");
-                }
+        // ====회원가입====
+        System.out.println("=====회원가입=====");
+
+        // ID 입력 및 유효성 검사
+        while (true) {
+            System.out.print("ID 를 입력하세요 (영문 소문자, 숫자 포함 5~10글자): ");
+            id = scanner.nextLine();
+
+            // ID 유효성 검사 (정규식)
+            if (!id.matches("[a-z0-9]{5,10}")) {
+                System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+                continue;
+            }
+            // DB에서 ID 중복 확인
+            if (isDuplicateID(id)) { // isDuplicate 라는 내부 메서드 실행
+                System.out.println("중복된 ID 입니다. 다시 입력해주세요.");
+                continue;
             }
 
-            // 회원 등록
-            String insertQuery = "INSERT INTO usertbl (name, memberGrade, ID, PW, phone) VALUES (?, '일반', ?, ?, ?)";
-            try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-                insertStmt.setString(1, name);
-                insertStmt.setString(2, id);
-                insertStmt.setString(3, pw);
-                insertStmt.setString(4, phone);
-                insertStmt.executeUpdate();
+            break; // 유효성 검사 및 중복 확인을 통과하면 탈출
+        }
+
+        // 비밀번호 입력 및 유효성 검사
+        while (true) {
+            System.out.print("비밀번호 (길이 8 이상, 숫자 포함): ");
+            pw = scanner.nextLine();
+
+            // 비밀번호 강도 검사 (길이 8 이상, 숫자 포함)
+            if (!pw.matches("^(?=.*[0-9]).{8,}$")) {
+                System.out.println("비밀번호가 너무 약합니다. 다시 입력해주세요.");
+                continue;
             }
+
+            // 비밀번호 확인
+            System.out.print("비밀번호 확인: ");
+            String pwConfirm = scanner.nextLine();
+
+            if (!pw.equals(pwConfirm)) {
+                System.out.println("두 비밀번호가 일치하지 않습니다. 다시 입력해주세요.");
+                continue;
+            }
+
+            break; // 비밀번호가 유효하면 탈출
+        }
+
+        // 이름 입력
+        System.out.print("이름을 입력하세요: ");
+        name = scanner.nextLine();
+
+        // 전화번호 입력 및 유효성 검사
+        while (true) {
+            System.out.print("전화번호를 입력하세요 (숫자 11자리): ");
+            phone = scanner.nextLine();
+
+            // 전화번호가 11자리 숫자인지 확인
+            if (!phone.matches("\\d{11}")) {
+                System.out.println("잘못된 전화 번호 입니다. 다시 입력해주세요.");
+                continue;
+            }
+
+            break; // 전화번호가 유효하면 탈출
+        }
+
+        // 회원 등록
+        String insertQuery = "INSERT INTO usertbl (name, memberGrade, ID, PW, phone) VALUES (?, '일반', ?, ?, ?)";
+        try (PreparedStatement insertStmt = DBConnection.getConnection().prepareStatement(insertQuery)) {
+            insertStmt.setString(1, name);
+            insertStmt.setString(2, id);
+            insertStmt.setString(3, pw);
+            insertStmt.setString(4, phone);
+            insertStmt.executeUpdate();
+            System.out.println("회원가입이 완료되었습니다.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+    private static boolean isDuplicateID(String pid) {
+        boolean isDuplicate = false;
+
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = "SELECT COUNT(*) FROM UserTbl WHERE ID = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setString(1, pid);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        isDuplicate = rs.getInt(1) > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return isDuplicate;
+    }
+
+
+
 
     public static Member login(Connection conn, String inputId, String inputPw) {
         // 로그인 로직 (DB에서 사용자 정보 확인)
@@ -78,9 +148,9 @@ public class Member {
         return member;
     }
 
-    public void searchBook(Connection conn) {
-        // 검색 도서 로직 (가정)
-    }
+//    public void searchBook(Connection conn) {
+//        // 검색 도서 로직 (가정)
+//    }
 
     public void viewMemberInfo() {
         System.out.println("회원 ID: " + this.memberId);
