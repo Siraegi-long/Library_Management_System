@@ -83,7 +83,7 @@ public class Menu {
                     break;
                 case 2:
                     Member newMember = new Member(null, null, null, null);
-                    newMember.registerMember(); // 회원 가입
+                    newMember.registerMember(conn); // 회원 가입
                     break;
                 case 3:
                     System.out.println("");
