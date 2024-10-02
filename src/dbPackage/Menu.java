@@ -68,19 +68,22 @@ public class Menu {
             }
 
             switch (main_Menu_Choice) {
-                case 1:
-                    currentUser = loginMenu(conn); // 로그인 메뉴 호출
-                    if (currentUser != null) {
-                        System.out.println("로그인 성공: " + currentUser.getName() + "님, 환영합니다.");
-                        if (currentUser.getMemberGrade().equals("관리자")) {
-                            adminMenu(admin, conn); // 관리자 메뉴 호출
-                        } else {
-                            userMenu(currentUser, conn);// 일반 사용자 메뉴 호출
-                        }
+            case 1:
+                currentUser = loginMenu(conn); // 로그인 메뉴 호출
+                if (currentUser != null) {
+                    System.out.println("로그인 성공: " + currentUser.getName() + "님, 환영합니다.");
+                    if (currentUser.getMemberGrade().equals("관리자")) {
+                        adminMenu(admin, conn); // 관리자 메뉴 호출
+                    } else if (currentUser.getMemberGrade().equals("퇴출")) {
+                        System.out.println("해당 계정은 퇴출된 계정입니다. 이용하실 수 없습니다!");
                     } else {
-                        System.out.println("로그인 실패: 잘못된 ID 또는 비밀번호입니다!");
+                        userMenu(currentUser, conn); // 일반 사용자 메뉴 호출
                     }
-                    break;
+                } else {
+                    System.out.println("로그인 실패: 잘못된 ID 또는 비밀번호입니다!");
+                }
+                break;
+
                 case 2:
                     Member newMember = new Member(null, null, null, null);
                     newMember.registerMember(conn); // 회원 가입
