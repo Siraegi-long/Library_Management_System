@@ -160,12 +160,10 @@ public class Admin {
 
     // 도서 추가 메서드
     private void addBook(Scanner scanner) {
-        // 도서 ID 입력 받음
         System.out.print("도서 ID: ");
         int bookId = scanner.nextInt();
-        scanner.nextLine(); // 버퍼 비우기
+        scanner.nextLine();
 
-        // 도서 제목, 저자, 출판사, 출판일, 카테고리, 수량 입력 받음
         System.out.print("제목: ");
         String bookName = scanner.nextLine();
         System.out.print("저자: ");
@@ -178,29 +176,25 @@ public class Admin {
         int quantity = scanner.nextInt();
 
         try {
-            // 도서 정보를 데이터베이스에 삽입하는 SQL 쿼리 작성
-            String query = "INSERT INTO booktbl (bookId, bookName, author, publisher, category, quantity, isRented) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
+            String query = "INSERT INTO booktbl (bookId, bookName, author, publisher, category, quantity) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement pstmt = conn.prepareStatement(query);
 
-            // 쿼리에 값 설정
             pstmt.setInt(1, bookId);
             pstmt.setString(2, bookName);
             pstmt.setString(3, author);
             pstmt.setString(4, publisher);
             pstmt.setString(5, category);
             pstmt.setInt(6, quantity);
-            pstmt.setBoolean(7, false); // 초기 대여 여부는 false
 
-            // 쿼리 실행
             pstmt.executeUpdate();
-            System.out.println("도서가 추가되었습니다."); // 추가 완료 메시지 출력
+            System.out.println("도서가 추가되었습니다.");
 
-            pstmt.close(); // PreparedStatement 닫기
+            pstmt.close();
         } catch (SQLException e) {
-            // 도서 추가 중 오류 발생 시 메시지 출력
             System.out.println("도서 추가 중 오류 발생: " + e.getMessage());
         }
     }
+
 
     // 도서 수정 메서드
     private void updateBook(Scanner scanner) {
@@ -307,7 +301,7 @@ public class Admin {
                 // 각 도서의 정보를 출력
                 System.out.println("ID: " + rs.getInt("bookId") + ", 제목: " + rs.getString("bookName") + ", 저자: " + rs.getString("author")
                         + ", 출판사: " + rs.getString("publisher") + ", 카테고리: "
-                        + rs.getString("category") + ", 수량: " + rs.getInt("quantity") + ", 대여 중: " + rs.getBoolean("isRented"));
+                        + rs.getString("category") + ", 수량: " + rs.getInt("quantity") + ", 대여 중: ");
             }
 
             rs.close(); // ResultSet 닫기
