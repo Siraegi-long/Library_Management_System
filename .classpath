@@ -6,7 +6,11 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+<<<<<<< HEAD
 	<classpathentry kind="lib" path="C:/Program Files/Java/mysql-connector-j-9.0.0/mysql-connector-j-9.0.0.jar">
+=======
+	<classpathentry kind="lib" path="C:/Users/806-01/Desktop/Coding/mysql-connector-j-9.0.0.jar">
+>>>>>>> 74bbe207b6f23faa479eec85a7650d8aac12a208
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
