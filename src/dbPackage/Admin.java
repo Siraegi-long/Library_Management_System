@@ -220,7 +220,7 @@ public class Admin {
     private void listBooks() {
         try {
             // 도서 목록을 조회하는 SQL 쿼리
-            String query = "SELECT * FROM books";
+            String query = "SELECT * FROM booktbl";
             Statement stmt = conn.createStatement(); // Statement 객체 생성
             
             // 쿼리 실행하여 결과 집합 가져옴
