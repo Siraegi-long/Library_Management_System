@@ -86,13 +86,11 @@ public class Admin {
 
         // 도서 제목, 저자, 출판사, 출판일, 카테고리, 수량 입력 받음
         System.out.print("제목: ");
-        String title = scanner.nextLine();
+        String bookName = scanner.nextLine();
         System.out.print("저자: ");
         String author = scanner.nextLine();
         System.out.print("출판사: ");
         String publisher = scanner.nextLine();
-        System.out.print("출판일: ");
-        String publicationDate = scanner.nextLine();
         System.out.print("카테고리: ");
         String category = scanner.nextLine();
         System.out.print("수량: ");
@@ -100,18 +98,17 @@ public class Admin {
 
         try {
             // 도서 정보를 데이터베이스에 삽입하는 SQL 쿼리 작성
-            String query = "INSERT INTO booktbl (bookId, title, author, publisher, publicationDate, category, quantity, isRented) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO booktbl (bookId, bookName, author, publisher, category, quantity, isRented) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(query); // PreparedStatement 객체 생성
 
             // 쿼리에 값 설정
             pstmt.setInt(1, bookId);
-            pstmt.setString(2, title);
+            pstmt.setString(2, bookName);
             pstmt.setString(3, author);
             pstmt.setString(4, publisher);
-            pstmt.setString(5, publicationDate);
-            pstmt.setString(6, category);
-            pstmt.setInt(7, quantity);
-            pstmt.setBoolean(8, false); // 초기 대여 여부는 false
+            pstmt.setString(5, category);
+            pstmt.setInt(6, quantity);
+            pstmt.setBoolean(7, false); // 초기 대여 여부는 false
 
             // 쿼리 실행
             pstmt.executeUpdate();
@@ -143,31 +140,28 @@ public class Admin {
             // 결과 집합에 데이터가 있는 경우
             if (rs.next()) {
                 // 기존 도서 정보를 기반으로 새로운 정보 입력받기
-                System.out.print("새 제목 (" + rs.getString("title") + "): ");
-                String title = scanner.nextLine();
+                System.out.print("새 제목 (" + rs.getString("bookName") + "): ");
+                String bookName = scanner.nextLine();
                 System.out.print("새 저자 (" + rs.getString("author") + "): ");
                 String author = scanner.nextLine();
                 System.out.print("새 출판사 (" + rs.getString("publisher") + "): ");
                 String publisher = scanner.nextLine();
-                System.out.print("새 출판일 (" + rs.getString("publicationDate") + "): ");
-                String publicationDate = scanner.nextLine();
                 System.out.print("새 카테고리 (" + rs.getString("category") + "): ");
                 String category = scanner.nextLine();
                 System.out.print("새 수량 (" + rs.getInt("quantity") + "): ");
                 int quantity = scanner.nextInt();
 
                 // 도서 정보를 업데이트하는 SQL 쿼리
-                String updateQuery = "UPDATE booktbl SET title = ?, author = ?, publisher = ?, publicationDate = ?, category = ?, quantity = ? WHERE bookId = ?";
+                String updateQuery = "UPDATE booktbl SET bookName = ?, author = ?, publisher = ?, category = ?, quantity = ? WHERE bookId = ?";
                 PreparedStatement updateStmt = conn.prepareStatement(updateQuery); // PreparedStatement 객체 생성
 
                 // 쿼리에 값 설정, 빈 문자열인 경우 기존 값 유지
-                updateStmt.setString(1, title.isEmpty() ? rs.getString("title") : title);
+                updateStmt.setString(1, bookName.isEmpty() ? rs.getString("bookName") : bookName);
                 updateStmt.setString(2, author.isEmpty() ? rs.getString("author") : author);
                 updateStmt.setString(3, publisher.isEmpty() ? rs.getString("publisher") : publisher);
-                updateStmt.setString(4, publicationDate.isEmpty() ? rs.getString("publicationDate") : publicationDate);
-                updateStmt.setString(5, category.isEmpty() ? rs.getString("category") : category);
-                updateStmt.setInt(6, quantity);
-                updateStmt.setInt(7, bookId); // 수정할 도서 ID 설정
+                updateStmt.setString(4, category.isEmpty() ? rs.getString("category") : category);
+                updateStmt.setInt(5, quantity);
+                updateStmt.setInt(6, bookId); // 수정할 도서 ID 설정
 
                 // 쿼리 실행
                 updateStmt.executeUpdate();
@@ -230,8 +224,8 @@ public class Admin {
             System.out.println("=== 도서 목록 ===");
             while (rs.next()) {
                 // 각 도서의 정보를 출력
-                System.out.println("ID: " + rs.getInt("bookId") + ", 제목: " + rs.getString("title") + ", 저자: " + rs.getString("author")
-                        + ", 출판사: " + rs.getString("publisher") + ", 출판일: " + rs.getString("publicationDate") + ", 카테고리: "
+                System.out.println("ID: " + rs.getInt("bookId") + ", 제목: " + rs.getString("bookName") + ", 저자: " + rs.getString("author")
+                        + ", 출판사: " + rs.getString("publisher") + ", 카테고리: "
                         + rs.getString("category") + ", 수량: " + rs.getInt("quantity") + ", 대여 중: " + rs.getBoolean("isRented"));
             }
 
