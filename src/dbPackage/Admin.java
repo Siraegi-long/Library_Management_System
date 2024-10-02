@@ -13,14 +13,95 @@ public class Admin {
             conn = DBConnection.getConnection();
         } catch (SQLException e) {
             // 연결 실패 시 오류 메시지 출력
-            System.out.println("데이터베이스 연결 오류: " + e.getMessage());
+            System.out.println("데이터베이스 연결 오류: " +    e.getMessage());
         }
     }
 
-    // 회원 관리 기능을 실행하는 메서드
+ // 회원 관리 기능을 실행하는 메서드
     public void manageUsers(Connection conn) {
-        // 회원 관리 로직은 아직 구현되지 않았음을 알리는 메시지 출력
-        System.out.println("회원 관리 기능은 아직 구현되지 않았습니다.");
+        // Scanner 객체 생성
+        Scanner scanner = new Scanner(System.in);
+        
+        // 무한 루프로 회원 관리 메뉴 제공
+        while (true) {
+            // 회원 관리 메뉴 출력
+            System.out.println("=== 회원 관리 ===");
+            System.out.println("1. 전체 회원 목록 보기");
+            System.out.println("2. 회원 등급 수정");
+            System.out.println("3. 뒤로 가기");
+            System.out.print("선택: ");
+
+            // 사용자 선택 입력 받기
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // 버퍼 비우기
+
+            // 메뉴에 따라 기능 실행
+            switch (choice) {
+                case 1:
+                    // 전체 회원 목록 보기
+                    listAllUsers();
+                    break;
+                case 2:
+                    // 회원 등급 수정
+                    updateMemberLevel(scanner);
+                    break;
+                case 3:
+                    // 뒤로 가기
+                    return;
+                default:
+                    System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
+            }
+        }
+    }
+
+    // 전체 회원 목록 출력 메서드
+    private void listAllUsers() {
+        try {
+            // 회원 정보를 가져오는 SQL 쿼리
+            String query = "SELECT * FROM usertbl";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            // 회원 목록 출력
+            System.out.println("=== 전체 회원 목록 ===");
+            while (rs.next()) {
+                System.out.println("ID: " + rs.getString("memberID") + ", 이름: " + rs.getString("name") 
+                + ", 등급: " + rs.getString("memberGrade"));
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("회원 목록 조회 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    // 회원 등급 수정 메서드
+    private void updateMemberLevel(Scanner scanner) {
+        // 회원 ID와 수정할 등급 입력 받기
+        System.out.print("수정할 회원 ID: ");
+        String memberID = scanner.nextLine();
+        System.out.print("새 등급 (일반, 관리자, 퇴출): ");
+        String newGrade = scanner.nextLine();
+
+        try {
+            // 등급을 수정하는 SQL 쿼리
+            String query = "UPDATE usertbl SET memberGrade = ? WHERE memberID = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, newGrade);
+            pstmt.setString(2, memberID);
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("회원 등급이 수정되었습니다.");
+            } else {
+                System.out.println("해당 ID의 회원을 찾을 수 없습니다.");
+            }
+
+            pstmt.close();
+        } catch (SQLException e) {
+            System.out.println("회원 등급 수정 중 오류 발생: " + e.getMessage());
+        }
     }
 
     // 도서 관리 기능을 실행하는 메서드
@@ -74,7 +155,7 @@ public class Admin {
     // 대여 연장 요청 승인 메서드
     public void approveExtension(Connection conn) {
         // 대여 연장 승인 로직은 아직 구현되지 않았음을 알리는 메시지 출력
-        System.out.println("대여 연장 승인 기능은 아직 구현되지 않았습니다.");
+        System.out.println("대여 연장 승인 기능은 아직 구현되지 않았습니다.");   
     }
 
     // 도서 추가 메서드
